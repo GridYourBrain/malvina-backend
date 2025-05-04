@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,11 +9,12 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+// Инициализация на OpenAI клиента
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
-const openai = new OpenAIApi(configuration);
 
+// Главен endpoint за генериране на приказки
 app.post('/generate', async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -22,7 +23,7 @@ app.post('/generate', async (req, res) => {
       return res.status(400).json({ error: 'Missing prompt in request body.' });
     }
 
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         { role: 'system', content: 'You are a fairytale writer for children.' },
@@ -31,14 +32,15 @@ app.post('/generate', async (req, res) => {
       temperature: 0.8,
     });
 
-    const story = response.data.choices[0].message.content;
+    const story = response.choices[0].message.content;
     res.json({ story });
   } catch (error) {
-    console.error('OpenAI error:', error.message);
-    res.status(500).json({ error: 'Error generating story.' });
+    console.error('OpenAI API error:', error.message);
+    res.status(500).json({ error: 'Failed to generate story.' });
   }
 });
 
+// Тестов GET endpoint за Render health check
 app.get('/', (req, res) => {
   res.send('Malvina backend is running.');
 });
