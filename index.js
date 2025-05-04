@@ -1,35 +1,48 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const { Configuration, OpenAIApi } = require('openai');
 
 const app = express();
+const port = process.env.PORT || 3000;
+
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
 const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
 app.post('/generate', async (req, res) => {
-  const { name, age, gender, category, emotion } = req.body;
-
   try {
-    const prompt = `Напиши детска приказка за ${gender} на име ${name}, на ${age} години. 
-    Историята да е в свят: ${category}, и да развива темата за: ${emotion}.`;
+    const { prompt } = req.body;
 
-    const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }]
+    if (!prompt) {
+      return res.status(400).json({ error: 'Missing prompt in request body.' });
+    }
+
+    const response = await openai.createChatCompletion({
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: 'You are a fairytale writer for children.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.8,
     });
 
-    res.json({ story: completion.data.choices[0].message.content });
+    const story = response.data.choices[0].message.content;
+    res.json({ story });
   } catch (error) {
-    console.error("Error:", error.message);
-    res.status(500).json({ error: "Грешка при генериране на приказката." });
+    console.error('OpenAI error:', error.message);
+    res.status(500).json({ error: 'Error generating story.' });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.get('/', (req, res) => {
+  res.send('Malvina backend is running.');
+});
+
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
