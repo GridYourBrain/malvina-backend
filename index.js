@@ -51,7 +51,7 @@ app.post('/audio', async (req, res) => {
 
   try {
     const apiKey = process.env.ELEVENLABS_API_KEY;
-    const voiceId = 'EXAVITQu4vr4xnSDxMaL'; // Може да се смени с друг
+    const voiceId = 'pREMn4INXSs2KOPsNcsD'; // Може да се смени с друг
 
     const options = {
       hostname: 'api.elevenlabs.io',
