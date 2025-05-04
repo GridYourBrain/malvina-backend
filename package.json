@@ -1,15 +1,15 @@
 {
   "name": "malvina-backend",
   "version": "1.0.0",
-  "description": "Backend for Malvina story generator",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "dotenv": "^16.0.3",
     "cors": "^2.8.5",
-    "openai": "^4.20.0"
+    "dotenv": "^16.3.1",
+    "openai": "^4.28.4"
   }
 }
